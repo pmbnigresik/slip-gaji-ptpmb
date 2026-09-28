@@ -15,13 +15,14 @@
         button { padding: 10px 20px; background: #000; color: #fff; border: none; cursor: pointer; font-weight: bold; }
         button:hover { background: #333; }
         
-        /* Desain Slip Gaji Akurat Sesuai Lampiran */
+        /* Desain Slip Gaji */
         #slip-section { display: none; }
         .slip-box { border: 2px solid #000; padding: 15px; background: #fff; }
         .header-top { display: flex; justify-content: space-between; border-bottom: 2px solid #000; padding-bottom: 8px; margin-bottom: 12px; font-weight: bold; font-size: 15px; }
         .badge-satu { background: #000; color: #fff; padding: 5px 15px; font-size: 18px; }
         
-        .grid-info { display: flex; justify-content: space-between; font-size: 13px; margin-bottom: 10px; }
+        /* JARAK PARAGRAF DIPERDEKAT DI SINI (margin-bottom diubah jadi 4px) */
+        .grid-info { display: flex; justify-content: space-between; font-size: 13px; margin-bottom: 4px; }
         .col-info-1 { width: 55%; }
         .col-info-2 { width: 42%; }
         
@@ -29,7 +30,9 @@
         td { padding: 3px 0; vertical-align: top; }
         
         .blok-judul { background: #000; color: #fff; padding: 2px 6px; font-weight: bold; display: inline-block; margin-bottom: 4px; font-size: 12px; }
-        .tabel-rincian { display: flex; justify-content: space-between; margin-top: 10px; }
+        
+        /* JARAK TABEL RINCIAN DIPERDEKAT (margin-top diubah jadi 4px) */
+        .tabel-rincian { display: flex; justify-content: space-between; margin-top: 4px; }
         .kolom-penerimaan, .kolom-potongan { width: 48%; }
         
         .garis-bawah { border-bottom: 1px solid #000; }
@@ -47,7 +50,7 @@
         <p>Silakan masukkan NIP dan Tanggal Lahir Anda untuk melihat slip gaji.</p>
         <input type="text" id="input-nip" placeholder="Masukkan N.I.P (contoh: PMB.21.0727.001)"><br>
         <input type="password" id="input-ttl" placeholder="TTL ddmmyyyy (contoh: 14091995)"><br><br>
-        <button onclick="prosesLogin()">LIHAT SLIP GAJI</button>
+        <button id="btn-login" onclick="prosesLogin()">LIHAT SLIP GAJI</button>
         <p id="pesan-error" style="color: red; display: none; margin-top: 10px;">NIP atau Tanggal Lahir salah / tidak ditemukan!</p>
     </div>
 
@@ -58,13 +61,11 @@
             <button onclick="unduhPDF()" style="background: #28a745;">Download Slip (PDF)</button>
         </div>
         
-        <!-- Area Desain Utama Slip Gaji -->
         <div id="area-cetak" class="slip-box">
             <div class="header-top">
                 <div>
                     SLIP GAJI PT PMB<br>
                     Periode <span style="margin-left: 35px;">:</span> 
-                    <!-- PERIODE BISA DIEDIT MANUAL DI SINI -->
                     <span id="teks-periode">12 S/D 26 SEPTEMBER 2026</span>
                 </div>
                 <div><div class="badge-satu">1</div></div>
@@ -76,7 +77,6 @@
                         <tr><td width="35%">Nama</td><td width="5%">:</td><td width="60%"><b><span id="val-nama">-</span></b></td></tr>
                         <tr><td>N.I.P.</td><td>:</td><td><b><span id="val-nip">-</span></b></td></tr>
                         <tr><td>Tanggal Masuk Kerja</td><td>:</td><td><span id="val-tgl-masuk">-</span></td></tr>
-                        <!-- KETERANGAN DIUBAH JADI STATIS -->
                         <tr><td colspan="3" style="padding-top: 6px;">Keterangan &nbsp;&nbsp;: a. Ijin : - &nbsp;&nbsp; b. Sakit : - &nbsp;&nbsp; c. Mangkir : - &nbsp;&nbsp; d. Cuti : -</td></tr>
                     </table>
                 </div>
@@ -89,9 +89,11 @@
                 </div>
             </div>
 
-            <hr style="border: 0.5px solid #000; margin: 8px 0;">
+            <!-- JARAK GARIS DIPERDEKAT -->
+            <hr style="border: 0.5px solid #000; margin: 4px 0;">
 
-            <div style="font-size: 13px; margin-bottom: 8px;">
+            <!-- JARAK BAWAH INFO LEMBUR DIPERDEKAT -->
+            <div style="font-size: 13px; margin-bottom: 4px;">
                 <table>
                     <tr>
                         <td width="20%">Jumlah Hari PAJ</td>
@@ -118,9 +120,7 @@
                 </table>
             </div>
 
-            <!-- BAGIAN RINCIAN PENERIMAAN & POTONGAN -->
             <div class="tabel-rincian">
-                <!-- KOLOM PENERIMAAN -->
                 <div class="kolom-penerimaan">
                     <div class="blok-judul">PENERIMAAN</div>
                     <table>
@@ -136,7 +136,6 @@
                     </table>
                 </div>
 
-                <!-- KOLOM POTONGAN -->
                 <div class="kolom-potongan">
                     <div class="blok-judul">POTONGAN</div>
                     <table>
@@ -146,7 +145,6 @@
                         <tr><td>MCU</td><td>: Rp.</td><td class="text-right" id="val-mcu">-</td></tr>
                         <tr><td>Sepatu</td><td>: Rp.</td><td class="text-right" id="val-sepatu">-</td></tr>
                         <tr><td>PPh 21</td><td>: Rp.</td><td class="text-right" id="val-pph21">-</td></tr>
-                        <!-- FONT BPJS DIPERBESAR DI SINI -->
                         <tr><td colspan="3"><span style="background: #ccc; padding: 1px 6px; font-weight: bold; font-size: 12px; display: inline-block; margin: 2px 0;">BPJS :</span></td></tr>
                         <tr><td>a. Kesehatan 1%</td><td>: Rp.</td><td class="text-right" id="val-kesehatan">-</td></tr>
                         <tr><td>b. Ketenagakerjaan 3%</td><td>: Rp.</td><td class="text-right garis-bawah" id="val-ketenagakerjaan">-</td></tr>
@@ -155,7 +153,6 @@
                 </div>
             </div>
 
-            <!-- GAJI DITERIMA -->
             <div style="margin-top: 15px; width: 50%;">
                 <table>
                     <tr>
@@ -165,24 +162,25 @@
                     </tr>
                 </table>
             </div>
-
         </div>
     </div>
 </div>
 
 <script>
-    // MASUKKAN URL & KEY SUPABASE MILIKMU DI SINI
+    // Pastikan URL dan Key Supabase sesuai
     const supabaseUrl = 'https://aqbompytivyheihcvqrx.supabase.co';
     const supabaseKey = 'sb_publishable_GuABKMK9x3DvN5Guyl7ajg_BGg_tcKD';
     const _supabase = supabase.createClient(supabaseUrl, supabaseKey, {
         auth: { persistSession: false }
     });
 
+    // RUMUS BARU: Menghapus titik bawaan dari text Supabase sebelum dikonversi
     function formatAngka(nilai) {
         if (nilai === null || nilai === undefined || nilai === "" || nilai === 0 || nilai === "0") {
             return "-";
         }
-        let angka = Number(nilai);
+        let stringNilai = String(nilai).replace(/\./g, '');
+        let angka = Number(stringNilai);
         if (isNaN(angka)) return nilai;
         return new Intl.NumberFormat('id-ID').format(angka);
     }
@@ -190,11 +188,15 @@
     async function prosesLogin() {
         const nip = document.getElementById('input-nip').value.trim();
         const ttl = document.getElementById('input-ttl').value.trim();
+        const btn = document.getElementById('btn-login');
 
         if(!nip || !ttl) {
             alert("Harap isi NIP dan Tanggal Lahir terlebih dahulu!");
             return;
         }
+
+        btn.innerText = "MENCARI DATA...";
+        btn.disabled = true;
 
         const { data, error } = await _supabase
             .from('data_gaji')
@@ -203,23 +205,23 @@
             .eq('ttl', ttl)
             .maybeSingle();
 
+        btn.innerText = "LIHAT SLIP GAJI";
+        btn.disabled = false;
+
         if (data) {
             document.getElementById('pesan-error').style.display = 'none';
             document.getElementById('login-section').style.display = 'none';
             document.getElementById('slip-section').style.display = 'block';
 
-            // Mapping Data Dinamis
             document.getElementById('val-nama').innerText = data.nama || "-";
             document.getElementById('val-nip').innerText = data.nip || "-";
             document.getElementById('val-bagian').innerText = data.bagian || "-";
 
-            // Jam & Hari PAJ
             document.getElementById('val-jumlah-hari-paj').innerText = formatAngka(data.jumlah_hari_paj);
             document.getElementById('val-jam-i').innerText = formatAngka(data.jam_I);
             document.getElementById('val-jam-ii').innerText = formatAngka(data.jam_II);
             document.getElementById('val-jam-iii').innerText = formatAngka(data.jam_III);
 
-            // Penerimaan
             document.getElementById('val-upah').innerText = formatAngka(data.upah);
             document.getElementById('val-upah-lembur').innerText = formatAngka(data.upah_lembur);
             document.getElementById('val-tunj-jabatan').innerText = formatAngka(data.tunj_jabatan);
@@ -230,7 +232,6 @@
             document.getElementById('val-utm').innerText = formatAngka(data.utm);
             document.getElementById('val-total-penerimaan').innerText = formatAngka(data.total_penerimaan);
 
-            // Potongan
             document.getElementById('val-sp').innerText = formatAngka(data.sp);
             document.getElementById('val-koreksi').innerText = formatAngka(data.koreksi);
             document.getElementById('val-seragam').innerText = formatAngka(data.seragam);
@@ -240,12 +241,9 @@
             document.getElementById('val-kesehatan').innerText = formatAngka(data.kesehatan);
             document.getElementById('val-ketenagakerjaan').innerText = formatAngka(data.ketenagakerjaan);
             
-            let totalPot = (Number(data.sp)||0) + (Number(data.koreksi)||0) + (Number(data.seragam)||0) + 
-                           (Number(data.mcu)||0) + (Number(data.sepatu)||0) + (Number(data.pph21)||0) + 
-                           (Number(data.kesehatan)||0) + (Number(data.ketenagakerjaan)||0);
-            document.getElementById('val-total-potongan').innerText = formatAngka(totalPot);
-
-            // Gaji Diterima Bersih
+            // LANGSUNG MENARIK DATA DARI KOLOM total_potongan SUPABASE
+            document.getElementById('val-total-potongan').innerText = formatAngka(data.total_potongan);
+            
             document.getElementById('val-gaji-diterima').innerText = formatAngka(data.gaji_diterima);
 
         } else {
