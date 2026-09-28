@@ -17,26 +17,20 @@
         
         /* Desain Slip Gaji - SUPER RAPAT */
         #slip-section { display: none; }
-        .slip-box { border: 2px solid #000; padding: 10px; background: #fff; } /* Padding box dikurangi */
+        .slip-box { border: 2px solid #000; padding: 10px; background: #fff; } 
         
-        /* Jarak header dipersempit */
         .header-top { display: flex; justify-content: space-between; border-bottom: 2px solid #000; padding-bottom: 4px; margin-bottom: 6px; font-weight: bold; font-size: 15px; }
         .badge-satu { background: #000; color: #fff; padding: 3px 12px; font-size: 16px; }
         
-        /* Margin info dipersempit jadi 2px */
         .grid-info { display: flex; justify-content: space-between; font-size: 13px; margin-bottom: 2px; }
         .col-info-1 { width: 55%; }
         .col-info-2 { width: 42%; }
         
         table { width: 100%; border-collapse: collapse; font-size: 13px; }
-        
-        /* SPASI ANTAR BARIS TEKS DIPANGKAS HABIS DI SINI */
         td { padding: 1px 0; vertical-align: top; line-height: 1.2; } 
         
-        /* Margin judul penerimaan/potongan dipersempit */
         .blok-judul { background: #000; color: #fff; padding: 2px 6px; font-weight: bold; display: inline-block; margin-bottom: 2px; font-size: 12px; }
         
-        /* Margin tabel rincian dipersempit jadi 2px */
         .tabel-rincian { display: flex; justify-content: space-between; margin-top: 2px; }
         .kolom-penerimaan, .kolom-potongan { width: 48%; }
         
@@ -44,14 +38,12 @@
         .garis-ganda { border-bottom: 3px double #000; border-top: 1px solid #000; }
         .text-right { text-align: right; }
         
-        /* Box Gaji Diterima */
         .box-gaji { border: 2px solid #000; padding: 2px 8px; font-weight: bold; }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <!-- HALAMAN LOGIN -->
     <div id="login-section">
         <h2>PORTAL SLIP GAJI KARYAWAN PT PMB</h2>
         <p>Silakan masukkan NIP dan Tanggal Lahir Anda untuk melihat slip gaji.</p>
@@ -61,7 +53,6 @@
         <p id="pesan-error" style="color: red; display: none; margin-top: 10px;">NIP atau Tanggal Lahir salah / tidak ditemukan!</p>
     </div>
 
-    <!-- HALAMAN SLIP GAJI -->
     <div id="slip-section">
         <div style="margin-bottom: 10px; display: flex; justify-content: space-between;">
             <button onclick="logout()" style="background: #dc3545; padding: 6px 12px;">&larr; Keluar</button>
@@ -96,7 +87,6 @@
                 </div>
             </div>
 
-            <!-- JARAK GARIS SUPER RAPAT -->
             <hr style="border: 0.5px solid #000; margin: 2px 0;">
 
             <div style="font-size: 13px; margin-bottom: 2px;">
@@ -260,6 +250,7 @@
         document.getElementById('login-section').style.display = 'block';
     }
 
+    // PENGATURAN PDF DIUBAH MENJADI PORTRAIT DI SINI
     function unduhPDF() {
         const element = document.getElementById('area-cetak');
         const namaFile = 'Slip_Gaji_' + document.getElementById('val-nama').innerText.replace(/\s+/g, '_') + '.pdf';
@@ -269,7 +260,7 @@
             filename:     namaFile,
             image:        { type: 'jpeg', quality: 1 },
             html2canvas:  { scale: 2 },
-            jsPDF:        { unit: 'in', format: 'a4', orientation: 'landscape' }
+            jsPDF:        { unit: 'in', format: 'a4', orientation: 'portrait' } 
         };
         
         html2pdf().set(opsi).from(element).save();
