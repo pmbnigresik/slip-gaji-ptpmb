@@ -15,30 +15,37 @@
         button { padding: 10px 20px; background: #000; color: #fff; border: none; cursor: pointer; font-weight: bold; }
         button:hover { background: #333; }
         
-        /* Desain Slip Gaji */
+        /* Desain Slip Gaji - SUPER RAPAT */
         #slip-section { display: none; }
-        .slip-box { border: 2px solid #000; padding: 15px; background: #fff; }
-        .header-top { display: flex; justify-content: space-between; border-bottom: 2px solid #000; padding-bottom: 8px; margin-bottom: 12px; font-weight: bold; font-size: 15px; }
-        .badge-satu { background: #000; color: #fff; padding: 5px 15px; font-size: 18px; }
+        .slip-box { border: 2px solid #000; padding: 10px; background: #fff; } /* Padding box dikurangi */
         
-        /* JARAK PARAGRAF DIPERDEKAT DI SINI (margin-bottom diubah jadi 4px) */
-        .grid-info { display: flex; justify-content: space-between; font-size: 13px; margin-bottom: 4px; }
+        /* Jarak header dipersempit */
+        .header-top { display: flex; justify-content: space-between; border-bottom: 2px solid #000; padding-bottom: 4px; margin-bottom: 6px; font-weight: bold; font-size: 15px; }
+        .badge-satu { background: #000; color: #fff; padding: 3px 12px; font-size: 16px; }
+        
+        /* Margin info dipersempit jadi 2px */
+        .grid-info { display: flex; justify-content: space-between; font-size: 13px; margin-bottom: 2px; }
         .col-info-1 { width: 55%; }
         .col-info-2 { width: 42%; }
         
         table { width: 100%; border-collapse: collapse; font-size: 13px; }
-        td { padding: 3px 0; vertical-align: top; }
         
-        .blok-judul { background: #000; color: #fff; padding: 2px 6px; font-weight: bold; display: inline-block; margin-bottom: 4px; font-size: 12px; }
+        /* SPASI ANTAR BARIS TEKS DIPANGKAS HABIS DI SINI */
+        td { padding: 1px 0; vertical-align: top; line-height: 1.2; } 
         
-        /* JARAK TABEL RINCIAN DIPERDEKAT (margin-top diubah jadi 4px) */
-        .tabel-rincian { display: flex; justify-content: space-between; margin-top: 4px; }
+        /* Margin judul penerimaan/potongan dipersempit */
+        .blok-judul { background: #000; color: #fff; padding: 2px 6px; font-weight: bold; display: inline-block; margin-bottom: 2px; font-size: 12px; }
+        
+        /* Margin tabel rincian dipersempit jadi 2px */
+        .tabel-rincian { display: flex; justify-content: space-between; margin-top: 2px; }
         .kolom-penerimaan, .kolom-potongan { width: 48%; }
         
         .garis-bawah { border-bottom: 1px solid #000; }
         .garis-ganda { border-bottom: 3px double #000; border-top: 1px solid #000; }
         .text-right { text-align: right; }
-        .box-gaji { border: 2px solid #000; padding: 4px 8px; font-weight: bold; }
+        
+        /* Box Gaji Diterima */
+        .box-gaji { border: 2px solid #000; padding: 2px 8px; font-weight: bold; }
     </style>
 </head>
 <body>
@@ -56,9 +63,9 @@
 
     <!-- HALAMAN SLIP GAJI -->
     <div id="slip-section">
-        <div style="margin-bottom: 15px; display: flex; justify-content: space-between;">
-            <button onclick="logout()" style="background: #dc3545;">&larr; Keluar / Ganti Akun</button>
-            <button onclick="unduhPDF()" style="background: #28a745;">Download Slip (PDF)</button>
+        <div style="margin-bottom: 10px; display: flex; justify-content: space-between;">
+            <button onclick="logout()" style="background: #dc3545; padding: 6px 12px;">&larr; Keluar</button>
+            <button onclick="unduhPDF()" style="background: #28a745; padding: 6px 12px;">Download PDF</button>
         </div>
         
         <div id="area-cetak" class="slip-box">
@@ -77,7 +84,7 @@
                         <tr><td width="35%">Nama</td><td width="5%">:</td><td width="60%"><b><span id="val-nama">-</span></b></td></tr>
                         <tr><td>N.I.P.</td><td>:</td><td><b><span id="val-nip">-</span></b></td></tr>
                         <tr><td>Tanggal Masuk Kerja</td><td>:</td><td><span id="val-tgl-masuk">-</span></td></tr>
-                        <tr><td colspan="3" style="padding-top: 6px;">Keterangan &nbsp;&nbsp;: a. Ijin : - &nbsp;&nbsp; b. Sakit : - &nbsp;&nbsp; c. Mangkir : - &nbsp;&nbsp; d. Cuti : -</td></tr>
+                        <tr><td colspan="3" style="padding-top: 4px;">Keterangan &nbsp;&nbsp;: a. Ijin : - &nbsp;&nbsp; b. Sakit : - &nbsp;&nbsp; c. Mangkir : - &nbsp;&nbsp; d. Cuti : -</td></tr>
                     </table>
                 </div>
                 <div class="col-info-2">
@@ -89,11 +96,10 @@
                 </div>
             </div>
 
-            <!-- JARAK GARIS DIPERDEKAT -->
-            <hr style="border: 0.5px solid #000; margin: 4px 0;">
+            <!-- JARAK GARIS SUPER RAPAT -->
+            <hr style="border: 0.5px solid #000; margin: 2px 0;">
 
-            <!-- JARAK BAWAH INFO LEMBUR DIPERDEKAT -->
-            <div style="font-size: 13px; margin-bottom: 4px;">
+            <div style="font-size: 13px; margin-bottom: 2px;">
                 <table>
                     <tr>
                         <td width="20%">Jumlah Hari PAJ</td>
@@ -145,7 +151,7 @@
                         <tr><td>MCU</td><td>: Rp.</td><td class="text-right" id="val-mcu">-</td></tr>
                         <tr><td>Sepatu</td><td>: Rp.</td><td class="text-right" id="val-sepatu">-</td></tr>
                         <tr><td>PPh 21</td><td>: Rp.</td><td class="text-right" id="val-pph21">-</td></tr>
-                        <tr><td colspan="3"><span style="background: #ccc; padding: 1px 6px; font-weight: bold; font-size: 12px; display: inline-block; margin: 2px 0;">BPJS :</span></td></tr>
+                        <tr><td colspan="3"><span style="background: #ccc; padding: 1px 6px; font-weight: bold; font-size: 12px; display: inline-block; margin: 1px 0;">BPJS :</span></td></tr>
                         <tr><td>a. Kesehatan 1%</td><td>: Rp.</td><td class="text-right" id="val-kesehatan">-</td></tr>
                         <tr><td>b. Ketenagakerjaan 3%</td><td>: Rp.</td><td class="text-right garis-bawah" id="val-ketenagakerjaan">-</td></tr>
                         <tr><td><b>Total Potongan</b></td><td><b>: Rp.</b></td><td class="text-right garis-ganda"><b><span id="val-total-potongan">-</span></b></td></tr>
@@ -153,7 +159,7 @@
                 </div>
             </div>
 
-            <div style="margin-top: 15px; width: 50%;">
+            <div style="margin-top: 6px; width: 50%;">
                 <table>
                     <tr>
                         <td width="40%" style="font-size: 14px; font-weight: bold; vertical-align: middle;">Gaji Diterima</td>
@@ -167,14 +173,12 @@
 </div>
 
 <script>
-    // Pastikan URL dan Key Supabase sesuai
     const supabaseUrl = 'https://aqbompytivyheihcvqrx.supabase.co';
     const supabaseKey = 'sb_publishable_GuABKMK9x3DvN5Guyl7ajg_BGg_tcKD';
     const _supabase = supabase.createClient(supabaseUrl, supabaseKey, {
         auth: { persistSession: false }
     });
 
-    // RUMUS BARU: Menghapus titik bawaan dari text Supabase sebelum dikonversi
     function formatAngka(nilai) {
         if (nilai === null || nilai === undefined || nilai === "" || nilai === 0 || nilai === "0") {
             return "-";
@@ -241,9 +245,7 @@
             document.getElementById('val-kesehatan').innerText = formatAngka(data.kesehatan);
             document.getElementById('val-ketenagakerjaan').innerText = formatAngka(data.ketenagakerjaan);
             
-            // LANGSUNG MENARIK DATA DARI KOLOM total_potongan SUPABASE
             document.getElementById('val-total-potongan').innerText = formatAngka(data.total_potongan);
-            
             document.getElementById('val-gaji-diterima').innerText = formatAngka(data.gaji_diterima);
 
         } else {
