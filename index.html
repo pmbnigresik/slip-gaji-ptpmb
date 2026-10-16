@@ -1,0 +1,556 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Mencegah browser memaksa Dark Mode -->
+    <meta name="color-scheme" content="light">
+    <title>Portal Karyawan PT PMB</title>
+    <!-- Library Supabase & html2pdf -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <style>
+        /* BACKGROUND WALLPAPER */
+        body { 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif, Arial; 
+            background: url('background.jpg') no-repeat center center fixed; 
+            background-size: cover; 
+            margin: 0; 
+            padding: 20px; 
+        }
+        
+        /* ========================================= */
+        /* KELAS UMUM & UTILITAS                     */
+        /* ========================================= */
+        .hidden { display: none !important; }
+        .flex-center { display: flex; justify-content: center; align-items: center; min-height: 85vh; }
+        .glass-card { background: rgba(255, 255, 255, 0.95); border-radius: 10px; box-shadow: 0 4px 20px rgba(0,0,0,0.2); overflow: hidden; backdrop-filter: blur(5px); }
+
+        /* ========================================= */
+        /* DESAIN HALAMAN LOGIN                      */
+        /* ========================================= */
+        .login-card { width: 100%; max-width: 420px; }
+        
+        .login-header { background: #38bdf8; color: white; text-align: center; padding: 30px 20px; }
+        .login-header img { max-height: 125px; margin-bottom: 12px; } 
+        .login-header h2 { margin: 0 0 5px 0; font-size: 22px; font-weight: bold; }
+        .login-header p { margin: 0; font-size: 13px; color: #f0f9ff; }
+        
+        .login-body { padding: 30px; }
+        .login-body h3 { text-align: center; color: #333; margin: 0 0 25px 0; font-size: 18px; font-weight: bold; }
+        
+        .form-group { margin-bottom: 20px; }
+        .form-group label { display: block; font-size: 13px; color: #4b5563; font-weight: bold; margin-bottom: 8px; text-align: left; }
+        
+        .input-icon-wrapper { position: relative; }
+        .input-icon-wrapper svg.icon-left { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); width: 20px; height: 20px; fill: #9ca3af; }
+        .input-icon-wrapper svg.icon-right { position: absolute; right: 14px; top: 50%; transform: translateY(-50%); width: 20px; height: 20px; fill: #9ca3af; cursor: pointer; transition: fill 0.2s; }
+        .input-icon-wrapper svg.icon-right:hover { fill: #38bdf8; }
+        
+        .input-icon-wrapper input { width: 100%; padding: 12px 42px 12px 42px; border: 1px solid #d1d5db; border-radius: 6px; font-size: 14px; box-sizing: border-box; outline: none; transition: border-color 0.2s; color: #374151; }
+        .input-icon-wrapper input:focus { border-color: #38bdf8; box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.2); }
+        .input-icon-wrapper input::placeholder { color: #9ca3af; }
+        
+        .btn-login { width: 100%; padding: 14px; background: #38bdf8; color: white; border: none; border-radius: 6px; font-size: 15px; font-weight: bold; cursor: pointer; transition: background 0.2s; margin-top: 10px; }
+        .btn-login:hover { background: #0284c7; }
+        .btn-login:disabled { background: #9ca3af; cursor: not-allowed; }
+        
+        .pesan-error { color: #dc2626; display: none; margin-top: 15px; font-size: 13px; text-align: center; font-weight: bold; background: #fee2e2; padding: 10px; border-radius: 6px; }
+        
+        .login-footer { background: #f8fafc; padding: 15px; text-align: center; border-top: 1px solid #f1f5f9; font-size: 12px; color: #64748b; }
+
+        /* ========================================= */
+        /* DESAIN HALAMAN DASHBOARD SKETSA           */
+        /* ========================================= */
+        .dashboard-wrapper { max-width: 750px; margin: 40px auto; padding: 40px; box-sizing: border-box; }
+        
+        .dash-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 20px; }
+        
+        .dash-profile { display: flex; align-items: center; gap: 20px; }
+        .dash-avatar { width: 60px; height: 60px; background: #2f3640; border-radius: 50%; display: flex; justify-content: center; align-items: center; }
+        .dash-avatar svg { width: 35px; height: 35px; fill: white; }
+        
+        .dash-info h3 { margin: 0; font-size: 22px; color: #1e272e; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; font-weight: 600; }
+        .dash-info p { margin: 5px 0 0 0; font-size: 16px; color: #485460; font-family: monospace; }
+        
+        .btn-logout-dash { display: flex; align-items: center; gap: 8px; background: transparent; border: 2px solid #2f3640; padding: 6px 14px; border-radius: 4px; font-weight: bold; cursor: pointer; font-size: 15px; transition: 0.2s; color: #2f3640; }
+        .btn-logout-dash:hover { background: #f1f2f6; }
+        .btn-logout-dash svg { width: 18px; height: 18px; fill: #2f3640; }
+        
+        .dash-divider { border: none; border-top: 2px solid #2f3640; margin: 0 0 30px 0; }
+        
+        .dash-actions { display: flex; flex-direction: column; gap: 15px; align-items: flex-start; }
+        
+        .btn-action-dash { background: transparent; border: 2px solid #2f3640; padding: 10px 25px; font-weight: bold; font-size: 16px; cursor: pointer; border-radius: 4px; transition: 0.2s; min-width: 180px; text-align: left; color: #2f3640; font-family: inherit; }
+        .btn-action-dash:hover { background: #e0f2fe; border-color: #0284c7; color: #0284c7; }
+        
+        .dash-performance { margin-top: 80px; }
+        .dash-performance h3 { margin: 0 0 25px 0; display: inline-block; border-bottom: 2px solid #2f3640; padding-bottom: 4px; font-size: 19px; text-transform: uppercase; color: #2f3640; letter-spacing: 1px; }
+        
+        .dash-warning { display: flex; align-items: center; gap: 15px; font-size: 17px; color: #333; font-family: 'Segoe UI', Tahoma, sans-serif; }
+        .dash-warning svg { width: 35px; height: 35px; fill: none; stroke: #000; stroke-width: 2px; stroke-linecap: round; stroke-linejoin: round; }
+
+        /* ========================================= */
+        /* DESAIN SLIP GAJI                          */
+        /* ========================================= */
+        #slip-section { max-width: 850px; margin: 0 auto; padding: 20px; }
+        .slip-box { border: 2px solid #000; padding: 10px; background: #fff; font-family: Arial, sans-serif; } 
+        
+        .header-top { display: flex; justify-content: space-between; border-bottom: 2px solid #000; padding-bottom: 4px; margin-bottom: 6px; font-weight: bold; font-size: 15px; }
+        .badge-satu { background: #000; color: #fff; padding: 3px 12px; font-size: 16px; }
+        
+        .grid-info { display: flex; justify-content: space-between; font-size: 13px; margin-bottom: 2px; }
+        .col-info-1 { width: 55%; }
+        .col-info-2 { width: 42%; }
+        
+        .slip-box table { width: 100%; border-collapse: collapse; font-size: 13px; }
+        .slip-box td { padding: 1px 0; vertical-align: top; line-height: 1.2; } 
+        
+        .tabel-rincian table td { white-space: nowrap; }
+
+        .blok-judul { background: #000; color: #fff; padding: 2px 6px; font-weight: bold; display: inline-block; margin-bottom: 2px; font-size: 12px; }
+        
+        .tabel-rincian { display: flex; justify-content: space-between; margin-top: 2px; }
+        .kolom-penerimaan, .kolom-potongan { width: 48%; }
+        
+        .garis-bawah { border-bottom: 1px solid #000; }
+        .garis-ganda { border-bottom: 3px double #000; border-top: 1px solid #000; }
+        .text-right { text-align: right; }
+        .box-gaji { border: 2px solid #000; padding: 2px 8px; font-weight: bold; }
+        
+        .aksi-atas { margin-bottom: 15px; display: flex; justify-content: space-between; }
+        .aksi-atas button { padding: 8px 15px; color: white; border: none; cursor: pointer; font-weight: bold; border-radius: 4px; transition: 0.2s; }
+        .aksi-atas button:hover { opacity: 0.8; }
+        .aksi-grup-kanan { display: flex; gap: 10px; }
+
+        /* ========================================= */
+        /* ANTI DARK-MODE KHUSUS AREA CETAK PDF      */
+        /* ========================================= */
+        #area-cetak { background-color: #ffffff !important; color: #000000 !important; }
+        #area-cetak * { border-color: #000000 !important; }
+        #area-cetak td, #area-cetak span, #area-cetak div, #area-cetak b { color: #000000 !important; }
+        #area-cetak .badge-satu { background-color: #000000 !important; color: #ffffff !important; }
+        #area-cetak .blok-judul { background-color: #000000 !important; color: #ffffff !important; }
+
+        /* ========================================= */
+        /* PENGATURAN CETAK (PRINT CSS)              */
+        /* ========================================= */
+        @media print {
+            body { background: none; padding: 0; }
+            #slip-section { box-shadow: none; max-width: 100%; margin: 0; padding: 0; border: none; background: none; backdrop-filter: none; }
+            .aksi-atas { display: none !important; }
+            .slip-box { border: 2px solid #000; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ================= HALAMAN 1: LOGIN ================= -->
+    <div id="login-section" class="flex-center">
+        <div class="login-card glass-card">
+            <div class="login-header">
+                <img src="logo.png" alt="Logo Perusahaan" onerror="this.style.display='none'">
+                <h2>Portal Karyawan</h2>
+                <p>PT Prima Makmur Bersama (PT PMB)</p>
+            </div>
+            
+            <div class="login-body">
+                <h3>Silakan Login</h3>
+                
+                <div class="form-group">
+                    <label>Username (NIP)</label>
+                    <div class="input-icon-wrapper">
+                        <svg class="icon-left" viewBox="0 0 24 24"><path d="M20 4H4c-1.11 0-2 .89-2 2v12c0 1.1.89 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.11-.9-2-2-2zm0 14H4V6h16v12zM6 10h2v2H6zm0 4h8v2H6zm10 0h2v2h-2zm-6-4h8v2h-8z"/></svg>
+                        <input type="text" id="input-nip" placeholder="Contoh: PMB.21.0727.001" onkeypress="cekEnter(event)">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Password (Tgl Lahir)</label>
+                    <div class="input-icon-wrapper">
+                        <svg class="icon-left" viewBox="0 0 24 24"><path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zM9 6c0-1.66 1.34-3 3-3s3 1.34 3 3v2H9V6zm9 14H6V10h12v10zm-6-3c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2z"/></svg>
+                        <input type="password" id="input-ttl" placeholder="Format: ddmmyyyy" onkeypress="cekEnter(event)">
+                        <svg class="icon-right" id="eye-icon" onclick="togglePassword()" viewBox="0 0 24 24"><path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/></svg>
+                    </div>
+                </div>
+
+                <button id="btn-login" class="btn-login" onclick="prosesLogin()">Masuk Portal</button>
+                
+                <div id="pesan-error" class="pesan-error">Username atau Password salah!</div>
+            </div>
+            
+            <div class="login-footer">
+                @ 2026 PIC's Masterpiece
+            </div>
+        </div>
+    </div>
+
+    <!-- ================= HALAMAN 2: DASHBOARD ================= -->
+    <div id="dashboard-section" class="dashboard-wrapper glass-card hidden">
+        
+        <div class="dash-header">
+            <div class="dash-profile">
+                <div class="dash-avatar">
+                    <svg viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
+                </div>
+                <div class="dash-info">
+                    <h3 id="dash-nama-lengkap">Nama Lengkap</h3>
+                    <p id="dash-nip-teks">NIP</p>
+                </div>
+            </div>
+            <button class="btn-logout-dash" onclick="logout()">
+                <svg viewBox="0 0 24 24"><path d="M17 7l-1.41 1.41L18.17 11H8v2h10.17l-2.58 2.58L17 17l5-5zM4 5h8V3H4c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h8v-2H4V5z"/></svg> 
+                Log out
+            </button>
+        </div>
+        
+        <hr class="dash-divider">
+        
+        <div class="dash-actions">
+            <button class="btn-action-dash" onclick="bukaHalamanSlip()">Lihat E-Slip</button>
+            <button class="btn-action-dash" onclick="downloadKPI()">Download KPI</button>
+        </div>
+        
+        <div class="dash-performance">
+            <h3>Peforma Karyawan</h3>
+            <div class="dash-warning">
+                <svg viewBox="0 0 24 24">
+                    <path d="M12 2L1 21h22L12 2z"/>
+                    <path d="M12 9v4"/>
+                    <path d="M12 17h.01"/>
+                </svg>
+                <span>Masih dalam pengembangan</span>
+            </div>
+        </div>
+        
+    </div>
+
+    <!-- ================= HALAMAN 3: SLIP GAJI ================= -->
+    <div id="slip-section" class="glass-card hidden">
+        <div class="aksi-atas">
+            <button onclick="kembaliKeDashboard()" style="background: #64748b;">&larr; Kembali ke Dashboard</button>
+            <div class="aksi-grup-kanan">
+                <button onclick="cetakLangsung()" style="background: #0ea5e9;">Cetak Langsung</button>
+                <button id="btn-pdf" onclick="unduhPDF()" style="background: #28a745;">Download PDF</button>
+            </div>
+        </div>
+        
+        <div id="area-cetak" class="slip-box">
+            <div class="header-top">
+                <div>
+                    SLIP GAJI PT PMB<br>
+                    Periode <span style="margin-left: 35px;">:</span> 
+                    <span id="teks-periode">27 SEPTEMBER S/D 11 OKTOBER 2026</span>
+                </div>
+                <div><div class="badge-satu" id="val-no">-</div></div>
+            </div>
+
+            <div class="grid-info">
+                <div class="col-info-1">
+                    <table>
+                        <tr><td width="35%">Nama</td><td width="5%">:</td><td width="60%"><b><span id="val-nama">-</span></b></td></tr>
+                        <tr><td>N.I.P.</td><td>:</td><td><b><span id="val-nip">-</span></b></td></tr>
+                        <tr><td>Tanggal Masuk Kerja</td><td>:</td><td><span id="val-tgl-masuk">-</span></td></tr>
+                        <tr><td colspan="3" style="padding-top: 4px;">Keterangan &nbsp;&nbsp;: a. Ijin : - &nbsp;&nbsp; b. Sakit : - &nbsp;&nbsp; c. Mangkir : - &nbsp;&nbsp; d. Cuti : -</td></tr>
+                    </table>
+                </div>
+                <div class="col-info-2">
+                    <table>
+                        <tr><td width="35%">Divisi</td><td width="5%">:</td><td width="60%"><span id="val-divisi">-</span></td></tr>
+                        <tr><td>Bagian</td><td>:</td><td><b><span id="val-bagian">-</span></b></td></tr>
+                        <tr><td>Jabatan</td><td>:</td><td><span id="val-jabatan">-</span></td></tr>
+                    </table>
+                </div>
+            </div>
+
+            <hr style="border: 0.5px solid #000; margin: 2px 0;">
+
+            <div style="font-size: 13px; margin-bottom: 2px;">
+                <table>
+                    <tr>
+                        <td width="20%">Jumlah Hari PAJ</td>
+                        <td width="2%">:</td>
+                        <td width="28%"><b><span id="val-jumlah-hari-paj">-</span></b> Hari</td>
+                        <td width="50%"></td>
+                    </tr>
+                    <tr>
+                        <td>Jumlah Jam Lembur</td>
+                        <td>:</td>
+                        <td colspan="2">
+                            a. Jam I &nbsp;&nbsp;: <span id="val-jam-i">-</span> Jam &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 
+                            Upah Lembur Per Jam :&nbsp;Rp. <span id="val-upah-lembur-perjam">-</span>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td></td>
+                        <td></td>
+                        <td colspan="2">
+                            b. Jam II &nbsp;: <span id="val-jam-ii">-</span> Jam<br>
+                            c. Jam III : <span id="val-jam-iii">-</span> Jam
+                        </td>
+                    </tr>
+                </table>
+            </div>
+
+            <div class="tabel-rincian">
+                <div class="kolom-penerimaan">
+                    <div class="blok-judul">PENERIMAAN</div>
+                    <table>
+                        <tr><td width="45%">Upah</td><td width="5%" style="white-space: nowrap;">:&nbsp;Rp.</td><td width="50%" class="text-right" id="val-upah">-</td></tr>
+                        <tr><td>Upah Lembur</td><td style="white-space: nowrap;">:&nbsp;Rp.</td><td class="text-right" id="val-upah-lembur">-</td></tr>
+                        <tr><td>Tunj. Jabatan</td><td style="white-space: nowrap;">:&nbsp;Rp.</td><td class="text-right" id="val-tunj-jabatan">-</td></tr>
+                        <tr><td>Tunj. Prestasi</td><td style="white-space: nowrap;">:&nbsp;Rp.</td><td class="text-right" id="val-tunj-prestasi">-</td></tr>
+                        <tr><td>Tunj. Keahlian</td><td style="white-space: nowrap;">:&nbsp;Rp.</td><td class="text-right" id="val-tunj-kompetensi">-</td></tr>
+                        <tr><td>Tunj. Lain-lain</td><td style="white-space: nowrap;">:&nbsp;Rp.</td><td class="text-right" id="val-tunj-lain">-</td></tr>
+                        <tr><td>PAJ</td><td style="white-space: nowrap;">:&nbsp;Rp.</td><td class="text-right" id="val-paj">-</td></tr>
+                        <tr><td>UTM</td><td style="white-space: nowrap;">:&nbsp;Rp.</td><td class="text-right garis-bawah" id="val-utm">-</td></tr>
+                        <tr><td><b>Total Penerimaan</b></td><td style="white-space: nowrap;"><b>:&nbsp;Rp.</b></td><td class="text-right garis-ganda"><b><span id="val-total-penerimaan">-</span></b></td></tr>
+                    </table>
+                </div>
+
+                <div class="kolom-potongan">
+                    <div class="blok-judul">POTONGAN</div>
+                    <table>
+                        <tr><td width="45%">Koperasi</td><td width="5%" style="white-space: nowrap;">:&nbsp;Rp.</td><td width="50%" class="text-right" id="val-sp">-</td></tr>
+                        <tr><td>Pinjaman</td><td style="white-space: nowrap;">:&nbsp;Rp.</td><td class="text-right" id="val-koreksi">-</td></tr>
+                        <tr><td>Seragam</td><td style="white-space: nowrap;">:&nbsp;Rp.</td><td class="text-right" id="val-seragam">-</td></tr>
+                        <tr><td>MCU</td><td style="white-space: nowrap;">:&nbsp;Rp.</td><td class="text-right" id="val-mcu">-</td></tr>
+                        <tr><td>Sepatu</td><td style="white-space: nowrap;">:&nbsp;Rp.</td><td class="text-right" id="val-sepatu">-</td></tr>
+                        <tr><td>PPh 21</td><td style="white-space: nowrap;">:&nbsp;Rp.</td><td class="text-right" id="val-pph21">-</td></tr>
+                        <tr><td colspan="3"><span style="background: #ccc; padding: 2px 8px; font-weight: bold; font-size: 15px; display: inline-block; margin: 2px 0;">BPJS :</span></td></tr>
+                        <tr><td>a. Kesehatan 1%</td><td style="white-space: nowrap;">:&nbsp;Rp.</td><td class="text-right" id="val-kesehatan">-</td></tr>
+                        <tr><td>b. Ketenagakerjaan 3%</td><td style="white-space: nowrap;">:&nbsp;Rp.</td><td class="text-right garis-bawah" id="val-ketenagakerjaan">-</td></tr>
+                        <tr><td><b>Total Potongan</b></td><td style="white-space: nowrap;"><b>:&nbsp;Rp.</b></td><td class="text-right garis-ganda"><b><span id="val-total-potongan">-</span></b></td></tr>
+                    </table>
+                </div>
+            </div>
+
+            <div style="margin-top: 6px; width: 50%;">
+                <table>
+                    <tr>
+                        <td width="45%" style="font-size: 14px; font-weight: bold; vertical-align: middle;">Gaji Diterima</td>
+                        <td width="5%" style="font-size: 14px; font-weight: bold; vertical-align: middle; white-space: nowrap;">:&nbsp;Rp.</td>
+                        <td width="50%" class="text-right"><div class="box-gaji"><span id="val-gaji-diterima" style="font-size: 15px;">-</span></div></td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+    </div>
+
+<script>
+    let _supabase = null;
+    try {
+        const supabaseUrl = 'https://aqbompytivyheihcvqrx.supabase.co';
+        const supabaseKey = 'sb_publishable_GuABKMK9x3DvN5Guyl7ajg_BGg_tcKD';
+        _supabase = supabase.createClient(supabaseUrl, supabaseKey, {
+            auth: { persistSession: false }
+        });
+    } catch (err) {
+        console.error("Gagal memuat library Supabase:", err);
+    }
+
+    let dataKaryawanAktif = null;
+
+    function cekEnter(event) {
+        if (event.key === 'Enter') {
+            prosesLogin();
+        }
+    }
+
+    function togglePassword() {
+        const inputTtl = document.getElementById('input-ttl');
+        const eyeIcon = document.getElementById('eye-icon');
+        if (inputTtl.type === 'password') {
+            inputTtl.type = 'text';
+            eyeIcon.style.fill = '#38bdf8'; 
+        } else {
+            inputTtl.type = 'password';
+            eyeIcon.style.fill = '#9ca3af'; 
+        }
+    }
+
+    function formatTeks(teks) {
+        if (teks === null || teks === undefined) return "-";
+        if (typeof teks === 'string' && teks.trim() === "") return "-";
+        return teks;
+    }
+
+    function formatJam(nilai) {
+        if (nilai === null || nilai === undefined || nilai === "") return "-";
+        let bersih = String(nilai).trim();
+        if (bersih === "" || bersih === "-" || bersih === "0") return "-";
+        bersih = bersih.replace(/\./g, '').replace(/,/g, '.');
+        let angka = Number(bersih);
+        if (isNaN(angka) || angka === 0) return "-";
+        return new Intl.NumberFormat('id-ID', { minimumFractionDigits: 0, maximumFractionDigits: 2 }).format(angka);
+    }
+
+    function formatRupiah(nilai) {
+        if (nilai === null || nilai === undefined || nilai === "") return "-";
+        let bersih = String(nilai).trim();
+        if (bersih === "" || bersih === "-" || bersih === "0") return "-";
+        bersih = bersih.replace(/\./g, '').replace(/,/g, '.');
+        let angka = Number(bersih);
+        if (isNaN(angka) || angka === 0) return "-";
+        
+        angka = Math.round(angka);
+        
+        return new Intl.NumberFormat('id-ID', { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(angka);
+    }
+
+    async function prosesLogin() {
+        const nip = document.getElementById('input-nip').value.trim();
+        const ttl = document.getElementById('input-ttl').value.trim();
+        const btn = document.getElementById('btn-login');
+        const pesanError = document.getElementById('pesan-error');
+
+        if (!_supabase) {
+            pesanError.innerText = "Sistem gagal terhubung. Pastikan koneksi internet stabil atau matikan AdBlock.";
+            pesanError.style.display = 'block';
+            return;
+        }
+
+        if(!nip || !ttl) {
+            pesanError.innerText = "Harap isi Username dan Password terlebih dahulu!";
+            pesanError.style.display = 'block';
+            return;
+        }
+
+        btn.innerText = "MENCARI DATA...";
+        btn.disabled = true;
+        pesanError.style.display = 'none';
+
+        try {
+            const { data, error } = await _supabase
+                .from('data_gaji')
+                .select('*')
+                .eq('nip', nip)
+                .eq('ttl', ttl)
+                .maybeSingle();
+
+            btn.innerText = "Masuk Portal";
+            btn.disabled = false;
+
+            if (data) {
+                dataKaryawanAktif = data;
+                document.getElementById('pesan-error').style.display = 'none';
+                
+                document.getElementById('dash-nama-lengkap').innerText = formatTeks(data.nama);
+                document.getElementById('dash-nip-teks').innerText = formatTeks(data.nip);
+
+                document.getElementById('login-section').classList.add('hidden');
+                document.getElementById('dashboard-section').classList.remove('hidden');
+            } else {
+                pesanError.innerText = "Username atau Password salah / tidak ditemukan!";
+                pesanError.style.display = 'block';
+            }
+        } catch (err) {
+            btn.innerText = "Masuk Portal";
+            btn.disabled = false;
+            pesanError.innerText = "Terjadi kendala jaringan saat mencari data.";
+            pesanError.style.display = 'block';
+            console.error(err);
+        }
+    }
+
+    function bukaHalamanSlip() {
+        if (!dataKaryawanAktif) return;
+        const data = dataKaryawanAktif;
+
+        if (data.periode) document.getElementById('teks-periode').innerText = formatTeks(data.periode);
+        document.getElementById('val-no').innerText = formatTeks(data.no);
+        document.getElementById('val-nama').innerText = formatTeks(data.nama);
+        document.getElementById('val-nip').innerText = formatTeks(data.nip);
+        document.getElementById('val-bagian').innerText = formatTeks(data.bagian);
+        document.getElementById('val-tgl-masuk').innerText = formatTeks(data.tgl_masuk);
+        document.getElementById('val-divisi').innerText = formatTeks(data.divisi);
+        document.getElementById('val-jabatan').innerText = formatTeks(data.jabatan);
+
+        document.getElementById('val-jumlah-hari-paj').innerText = formatJam(data.jumlah_hari_paj);
+        document.getElementById('val-jam-i').innerText = formatJam(data.jam_1);
+        document.getElementById('val-jam-ii').innerText = formatJam(data.jam_2);
+        document.getElementById('val-jam-iii').innerText = formatJam(data.jam_3);
+        
+        if (data.upah_lembur_per_jam || data.upah_lembur_perjam) {
+            const tarifLembur = data.upah_lembur_per_jam || data.upah_lembur_perjam;
+            document.getElementById('val-upah-lembur-perjam').innerText = formatRupiah(tarifLembur);
+        }
+
+        document.getElementById('val-upah').innerText = formatRupiah(data.upah);
+        document.getElementById('val-upah-lembur').innerText = formatRupiah(data.upah_lembur);
+        document.getElementById('val-tunj-jabatan').innerText = formatRupiah(data.tunj_jabatan);
+        document.getElementById('val-tunj-prestasi').innerText = formatRupiah(data.tunj_prestasi);
+        document.getElementById('val-tunj-kompetensi').innerText = formatRupiah(data.tunj_kompetensi);
+        document.getElementById('val-tunj-lain').innerText = formatRupiah(data.tunj_lain);
+        document.getElementById('val-paj').innerText = formatRupiah(data.paj);
+        document.getElementById('val-utm').innerText = formatRupiah(data.utm);
+        document.getElementById('val-total-penerimaan').innerText = formatRupiah(data.total_penerimaan);
+
+        document.getElementById('val-sp').innerText = formatRupiah(data.sp);
+        document.getElementById('val-koreksi').innerText = formatRupiah(data.koreksi);
+        document.getElementById('val-seragam').innerText = formatRupiah(data.seragam);
+        document.getElementById('val-mcu').innerText = formatRupiah(data.mcu);
+        document.getElementById('val-sepatu').innerText = formatRupiah(data.sepatu);
+        document.getElementById('val-pph21').innerText = formatRupiah(data.pph21);
+        document.getElementById('val-kesehatan').innerText = formatRupiah(data.kesehatan);
+        document.getElementById('val-ketenagakerjaan').innerText = formatRupiah(data.ketenagakerjaan);
+        document.getElementById('val-total-potongan').innerText = formatRupiah(data.total_potongan);
+        document.getElementById('val-gaji-diterima').innerText = formatRupiah(data.gaji_diterima);
+
+        document.getElementById('dashboard-section').classList.add('hidden');
+        document.getElementById('slip-section').classList.remove('hidden');
+    }
+
+    function downloadKPI() {
+        alert("Mohon maaf, File KPI untuk " + document.getElementById('dash-nama-lengkap').innerText + " masih dalam tahap penyusunan oleh HR.");
+    }
+
+    function kembaliKeDashboard() {
+        document.getElementById('slip-section').classList.add('hidden');
+        document.getElementById('dashboard-section').classList.remove('hidden');
+    }
+
+    function logout() {
+        dataKaryawanAktif = null;
+        document.getElementById('input-nip').value = '';
+        document.getElementById('input-ttl').value = '';
+        
+        document.getElementById('dashboard-section').classList.add('hidden');
+        document.getElementById('slip-section').classList.add('hidden');
+        document.getElementById('login-section').classList.remove('hidden');
+    }
+
+    function cetakLangsung() {
+        window.print();
+    }
+
+    function unduhPDF() {
+        const btnPdf = document.getElementById('btn-pdf');
+        const teksAsli = btnPdf.innerText;
+        
+        btnPdf.innerText = "Memproses PDF...";
+        btnPdf.disabled = true;
+        btnPdf.style.opacity = "0.7";
+
+        const element = document.getElementById('area-cetak');
+        const namaFile = 'Slip_Gaji_' + document.getElementById('val-nama').innerText.replace(/\s+/g, '_') + '.pdf';
+        
+        const opsi = {
+            margin:       0.2,
+            filename:     namaFile,
+            image:        { type: 'jpeg', quality: 1 },
+            /* backgroundColor: '#ffffff' ditambahkan agar PDF selalu berlatar putih */
+            html2canvas:  { scale: 2, backgroundColor: '#ffffff' },
+            jsPDF:        { unit: 'in', format: 'a4', orientation: 'portrait' } 
+        };
+        
+        html2pdf().set(opsi).from(element).save().then(() => {
+            btnPdf.innerText = teksAsli;
+            btnPdf.disabled = false;
+            btnPdf.style.opacity = "1";
+        });
+    }
+</script>
+
+</body>
+</html>
