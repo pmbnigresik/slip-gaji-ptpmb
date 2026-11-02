@@ -1,0 +1,89 @@
+function muatDaftarPeriode(tahun) {
+        var container = document.getElementById('container-tombol-periode');
+        if (!container) return;
+        container.innerHTML = '';
+        
+        var daftarPeriode = DATABASES_PERIODE[tahun] || [];
+        
+        daftarPeriode.forEach(function(item) {
+            var matchData = cariDataPeriode(item.key);
+            var btn = document.createElement('button');
+            
+            if (matchData) {
+                btn.className = 'btn-periode periode-tersedia';
+                btn.onclick = function() {
+                    dataKaryawanAktif = matchData;
+                    // Menyimpan label dari DATABASES_PERIODE saat tombol diklik
+                    dataKaryawanAktif.teks_periode_otomatis = item.label; 
+                    bukaHalamanSlip();
+                };
+                btn.innerHTML = '<span>' + item.label + '</span><span class="badge-status badge-tersedia">Tersedia</span>';
+            } else {
+                btn.className = 'btn-periode periode-kosong';
+                btn.onclick = function() {
+                    alert('data tidak tersedia.');
+                };
+                btn.innerHTML = '<span>' + item.label + '</span><span class="badge-status badge-kosong">Tidak Tersedia</span>';
+            }
+            
+            container.appendChild(btn);
+        });
+    }
+
+    function bukaHalamanSlip() {
+        if (!dataKaryawanAktif) return;
+        var data = dataKaryawanAktif;
+
+        // --- MENGUBAH JUDUL PERIODE OTOMATIS ---
+        if (data.teks_periode_otomatis) {
+            // Ubah format "12 - 26 Oktober 2026" menjadi "12 S/D 26 OKTOBER 2026"
+            var teksJudulOtomatis = data.teks_periode_otomatis.toUpperCase().replace(/\s*-\s*/g, " S/D ");
+            document.getElementById('teks-periode').innerText = teksJudulOtomatis;
+        } else if (data.periode) {
+            document.getElementById('teks-periode').innerText = formatTeks(data.periode);
+        }
+
+        // Sisa kode di bawah ini tetap sama persis
+        document.getElementById('val-no').innerText = formatTeks(data.no);
+        document.getElementById('val-nama').innerText = formatTeks(data.nama);
+        document.getElementById('val-nip').innerText = formatTeks(data.nip);
+        document.getElementById('val-bagian').innerText = formatTeks(data.bagian);
+        document.getElementById('val-tgl-masuk').innerText = formatTeks(data.tgl_masuk);
+        document.getElementById('val-divisi').innerText = formatTeks(data.divisi);
+        document.getElementById('val-jabatan').innerText = formatTeks(data.jabatan);
+
+        document.getElementById('val-jumlah-hari-paj').innerText = formatJam(data.jumlah_hari_paj);
+        document.getElementById('val-jam-i').innerText = formatJam(data.jam_1);
+        document.getElementById('val-jam-ii').innerText = formatJam(data.jam_2);
+        document.getElementById('val-jam-iii').innerText = formatJam(data.jam_3);
+        
+        if (data.upah_lembur_per_jam || data.upah_lembur_perjam) {
+            var tarifLembur = data.upah_lembur_per_jam || data.upah_lembur_perjam;
+            document.getElementById('val-upah-lembur-perjam').innerText = formatRupiah(tarifLembur);
+        }
+
+        document.getElementById('val-upah').innerText = formatRupiah(data.upah);
+        document.getElementById('val-upah-lembur').innerText = formatRupiah(data.upah_lembur);
+        document.getElementById('val-tunj-jabatan').innerText = formatRupiah(data.tunj_jabatan);
+        document.getElementById('val-tunj-prestasi').innerText = formatRupiah(data.tunj_prestasi);
+        document.getElementById('val-tunj-kompetensi').innerText = formatRupiah(data.tunj_kompetensi);
+        document.getElementById('val-tunj-lain').innerText = formatRupiah(data.tunj_lain);
+        document.getElementById('val-paj').innerText = formatRupiah(data.paj);
+        document.getElementById('val-utm').innerText = formatRupiah(data.utm);
+        document.getElementById('val-total-penerimaan').innerText = formatRupiah(data.total_penerimaan);
+
+        document.getElementById('val-sp').innerText = formatRupiah(data.sp);
+        document.getElementById('val-koreksi').innerText = formatRupiah(data.koreksi);
+        document.getElementById('val-seragam').innerText = formatRupiah(data.seragam);
+        document.getElementById('val-mcu').innerText = formatRupiah(data.mcu);
+        document.getElementById('val-sepatu').innerText = formatRupiah(data.sepatu);
+        document.getElementById('val-pph21').innerText = formatRupiah(data.pph21);
+        document.getElementById('val-kesehatan').innerText = formatRupiah(data.kesehatan);
+        document.getElementById('val-ketenagakerjaan').innerText = formatRupiah(data.ketenagakerjaan);
+        document.getElementById('val-total-potongan').innerText = formatRupiah(data.total_potongan);
+        document.getElementById('val-gaji-diterima').innerText = formatRupiah(data.gaji_diterima);
+
+        document.getElementById('dashboard-section').classList.add('hidden');
+        document.getElementById('periode-section').classList.add('hidden');
+        document.getElementById('slip-section').classList.remove('hidden');
+    }
